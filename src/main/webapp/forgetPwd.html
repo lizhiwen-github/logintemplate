@@ -24,18 +24,18 @@
         <!-- 登录文字 -->
         <h3 style="color:blue">忘记密码</h3>
         <!-- 表单区域 -->
-        <el-form ref="loginRef" :model="loginFormData" label-width="200" :rules="loginRules">
+        <el-form ref="forgetPwdRef" :model="forgetPwdFormData" label-width="200" :rules="loginRules">
           <el-form-item prop="username">
             <!-- 将用户名的输入框设置为只读 -->
-            <el-input disabled prefix-icon="el-icon-user" v-model="loginFormData.username" class="input-first">
+            <el-input disabled prefix-icon="el-icon-user" v-model="forgetPwdFormData.username" class="input-first">
             </el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="loginFormData.password">
+            <el-input placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="forgetPwdFormData.password">
             </el-input>
           </el-form-item>
           <el-form-item prop="rePassword">
-            <el-input placeholder="请再次输入密码" prefix-icon="el-icon-lock" v-model="loginFormData.rePassword">
+            <el-input placeholder="请再次输入密码" prefix-icon="el-icon-lock" v-model="forgetPwdFormData.rePassword">
             </el-input>
           </el-form-item>
           <!-- 记住密码的单选框 -->
@@ -68,7 +68,7 @@
         }
         return {
           //* 表单组件的数据模型
-          loginFormData: {
+          forgetPwdFormData: {
             // - 用户名
             username: '',
             // - 密码
