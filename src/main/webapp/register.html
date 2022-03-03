@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./js/axios-0.18.0.js"></script>
+  <script src="./js/vue.js"></script>
+  <script src="./element-ui/lib/index.js"></script>
+  <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+   <link rel="stylesheet" href="./css/registerStyle.css">
+</head>
+
+<body>
+  <div class="login-wrapper" id="app">
+    <div class="login-content">
+      <div class="login-img-wrapper">
+        <!-- 显示旋转的图片 -->
+        <div class="login-img"></div>
+      </div>
+      <div class="login-form">
+        <!-- 登录文字 -->
+        <h3 style="color:blue">注册</h3>
+        <!-- 表单区域 -->
+        <el-form ref="registerRef" :model="registerFormData" label-width="200" :rules="registerRules">
+          <el-form-item prop="username">
+            <el-input placeholder="请输入用户名" prefix-icon="el-icon-user" v-model="registerFormData.username"
+              class="input-first">
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input type="password" placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="registerFormData.password">
+            </el-input>
+          </el-form-item>
+          <!-- 验证码 -->
+          <el-form-item prop="verificationCode" class="codeForm">
+            <el-input placeholder="请输入验证码" prefix-icon="el-icon-key" v-model="registerFormData.verificationCode"
+              class="code-input">
+            </el-input>
+            <img :src="codeImage" alt="验证码" @click="switchImageForImg">
+            <a href="#" id="code-link" style="margin-left:10px" @click="switchImageForSpan">看不清</a>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="success" @click="registerFun">注册</el-button>
+            <el-button type="danger" class="reset-btn" @click="resetFun">重置</el-button>
+          </el-form-item>
+        </el-form>
+        <a href="./login.html" class="routerLinnk-first">登录</a>
+        <a href="./forgetPwd.html" class="routerLinnk-second">忘记密码</a>
+      </div>
+    </div>
+  </div>
+  <!-- vue代码区域 -->
+  <script>
+    Vue.config.productionTip=false
+   const vm=new Vue({
+     el:'#app',
+     data() {
+       return {
+          //* 表单组件的数据模型
+      registerFormData: {
+        // - 用户名
+        username: '',
+        // - 密码
+        password: '',
+        // - 验证码
+        verificationCode: ''
+      },
+      // - 表单的验证规则
+       registerRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 5, max: 15, message: '长度在 5 到 15 个字符', trigger: 'blur' }
+        ],
+        verificationCode: [
+          { required: true, message: '请输入验证码', trigger: 'blur' }
+        ]
+      },
+      // - 记住密码的单选框的选中状态
+      remPwd: false,
+      // 验证码
+      codeImage:''
+       }
+     },
+     methods: {
+          //* 点击重置按钮，响应该事件
+    resetFun () {
+      // -重置表单的输入的内容和验证结果
+      this.$refs.loginRef.resetFields()
+    },
+    //* 点击登录按钮，响应该事件
+    // TODO 点击注册按钮，发送ajax请求，验证注册是否成功
+    registerFun () {
+       this.$refs.registerRef.validate( async isValid=>{
+         if(!isValid){
+           //预验证失败
+           this.$message.error('请输入合法的注册信息')
+         }else{
+          const res=await axios.get('http://localhost:8080/finalBrandDemo/user/selectByUsernameForRegister',{params: {
+               username:this.registerFormData.username
+             }})
+           if(res.data==="该用户名已被注册"){
+             this.$message.error('该用户名已被注册')
+             this.registerFormData.username=''
+           }else{
+            const res1=await axios.get('http://localhost:8080/finalBrandDemo/user/registerUser',{params: {
+               username:this.registerFormData.username,
+               password:this.registerFormData.password,
+               verificationCode:this.registerFormData.verificationCode
+               }
+               })
+             console.log(res1)
+             if(res1.data==='注册成功'){
+               this.$message.success('注册成功')
+               //跳转到登录页面
+               window.location.href='http://localhost:8080/finalBrandDemo/login.html'
+             }
+            if(res1.data==='验证码错误'){
+              this.$message.error('验证码错误')
+            }
+           }
+         }
+       })
+     },
+     // 点击看不清按钮，触发该事件
+    switchImageForSpan(){
+       this.codeImage="http://localhost:8080/finalBrandDemo/user/checkImageCode?"+new Date().getMilliseconds()
+    },
+    // 点击验证码，切换图片
+    switchImageForImg(){
+      this.codeImage="http://localhost:8080/finalBrandDemo/user/checkImageCode?"+new Date().getMilliseconds()
+    }
+   },
+   beforeMount(){
+       this.codeImage="http://localhost:8080/finalBrandDemo/user/checkImageCode?"+new Date().getMilliseconds()
+     }
+   })
+  </script>
+</body>
+
+</html>

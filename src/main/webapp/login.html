@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <!-- 引入vue.js -->
+  <script src="./js/vue.js"></script>
+  <!-- 引入axios -->
+  <script src="./js/axios-0.18.0.js"></script>
+  <!-- 引入element-ui -->
+  <script src="./element-ui/lib/index.js"></script>
+  <!-- 引入element-ui样式表 -->
+  <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="./css/loginStyle.css">
+</head>
+
+<body>
+  <div class="login-wrapper" id="app">
+    <div class="login-content">
+      <div class="login-img-wrapper">
+        <!-- 显示旋转的图片 -->
+        <div class="login-img"></div>
+      </div>
+      <div class="login-form">
+        <!-- 登录文字 -->
+        <h3 style="color:blue">登录</h3>
+        <!-- 表单区域 -->
+        <el-form ref="loginRef" :model="loginFormData" label-width="200" :rules="loginRules">
+          <el-form-item prop="username">
+            <el-input placeholder="请输入用户名" prefix-icon="el-icon-user" v-model="loginFormData.username"
+              class="input-first">
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="loginFormData.password">
+            </el-input>
+          </el-form-item>
+          <!-- 记住密码的单选框 -->
+          <el-form-item class="remePwd-checkBox">
+            <el-checkbox v-model="remPwd">记住密码</el-checkbox>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="success" @click="loginFun">登录</el-button>
+            <el-button type="danger" class="reset-btn" @click="resetFun">重置</el-button>
+          </el-form-item>
+        </el-form>
+        <a href="./register.html" class="routerLinnk-first">注册</a>
+        <a href="./forgetPwd.html" class="routerLinnk-second">忘记密码</a>
+      </div>
+    </div>
+  </div>
+  <!-- vue代码区域 -->
+  <script>
+    Vue.config.productionTip = false
+    const vm = new Vue({
+      el:'#app',
+      // 当跳转到登录页面的时候，判断记住密码是否勾选
+      beforeMount(){
+         // 记住密码
+         this.rememberPassword()
+     },
+      data() {
+        return {
+          
+            //* 表单组件的数据模型
+            loginFormData: {
+              // - 用户名
+              username: '',
+              // - 密码
+              password: ''
+            },
+            // - 表单的验证规则
+            loginRules: {
+              username: [{
+                  required: true,
+                  message: '请输入用户名',
+                  trigger: 'blur'
+                },
+                {
+                  min: 2,
+                  max: 5,
+                  message: '长度在 2 到 5 个字符',
+                  trigger: 'blur'
+                }
+              ],
+              password: [{
+                  required: true,
+                  message: '请输入密码',
+                  trigger: 'blur'
+                },
+                {
+                  min: 5,
+                  max: 15,
+                  message: '长度在 5 到 15 个字符',
+                  trigger: 'blur'
+                }
+              ]
+            },
+          // - 记住密码的单选框的选中状态
+          remPwd: false
+
+        }
+      },
+      methods: {
+        //* 点击重置按钮，响应该事件
+        resetFun() {
+          // -重置表单的输入的内容和验证结果
+          this.$refs.loginRef.resetFields()
+        },
+        //* 点击登录按钮，响应该事件
+        // TODO 点击的登录按钮，发送ajax请求，验证登录是否成功
+        loginFun() {
+          this.$refs.loginRef.validate(async isValid=>{
+            if(!isValid){
+              //预验证失败
+              this.$message.error('请输入合法的数据')
+            }else{
+              const res=await axios.get('http://localhost:8080/finalBrandDemo/user/selectUsernameAndPassword',{params:{
+                  user:this.loginFormData,
+                  checkValue:this.remPwd
+                }})
+              // console.log(res)
+               if('用户不存在'===res.data){
+                 this.$message.error('用户不存在，登录失败')
+               }else if('登录成功'===res.data){
+                 this.$message.success('登录成功')
+               }else if('登录失败'===res.data){
+                 this.$message.error('登录失败')
+               }else{
+                 this.$message.error('未知错误，登录失败')
+               }
+             }
+          })
+        },
+       async rememberPassword(){
+            const res=await axios.get('http://localhost:8080/finalBrandDemo/user/isRememberPwd')
+           console.log(res)
+         if(res.data.checkValue==='true'){
+              this.remPwd=true
+              this.loginFormData.username =res.data.username
+              this.loginFormData.password=res.data.password
+            }else{
+              this.remPwd=false
+              this.loginFormData.username =''
+              this.loginFormData.password=''
+            }
+          }
+        }
+    }
+    )
+  </script>
+</body>
+
+</html>
