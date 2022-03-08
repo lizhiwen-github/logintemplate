@@ -28,17 +28,17 @@ public class UserService {
         return user1;
     }
     /**
-     * @param userename 用户名
+     * @param username 用户名
      * @return com.lzw.entity.User
      * @author 李志文
      * @date 2022/1/28 10:08
      * @description: TODO 验证用户名是否存在
      */
-    public static User selectByName(String userename){
+    public static User selectByName(String username){
         SqlSessionFactory sqlSessionFactory = SqlSessionFactoryUtil.getSqlSessionFactory();
         SqlSession sqlSession = sqlSessionFactory.openSession(true);
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-        User user = mapper.selectName(userename);
+        User user = mapper.selectName(username);
         sqlSession.close();
         return user;
     }
