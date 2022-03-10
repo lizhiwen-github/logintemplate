@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class BrandService {
     public static List<Brand> selectAll(){
+        //获得sqlSessionFactory类
         SqlSessionFactory sqlSessionFactory = SqlSessionFactoryUtil.getSqlSessionFactory();
         SqlSession sqlSession = sqlSessionFactory.openSession(true);
         BrandMapper mapper = sqlSession.getMapper(BrandMapper.class);

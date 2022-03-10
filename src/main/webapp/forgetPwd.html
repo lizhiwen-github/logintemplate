@@ -24,10 +24,9 @@
         <!-- 登录文字 -->
         <h3 style="color:blue">忘记密码</h3>
         <!-- 表单区域 -->
-        <el-form ref="forgetPwdRef" :model="forgetPwdFormData" label-width="200" :rules="loginRules">
+        <el-form ref="forgetPwdRef" :model="forgetPwdFormData" label-width="200" :rules="loginRules" @blur="checkUsername">
           <el-form-item prop="username">
-            <!-- 将用户名的输入框设置为只读 -->
-            <el-input disabled prefix-icon="el-icon-user" v-model="forgetPwdFormData.username" class="input-first">
+            <el-input prefix-icon="el-icon-user" v-model="forgetPwdFormData.username" class="input-first">
             </el-input>
           </el-form-item>
           <el-form-item prop="password">
@@ -104,15 +103,19 @@
         //* 点击重置按钮，响应该事件
         resetFun() {
           // -重置表单的输入的内容和验证结果
-          this.$refs.loginRef.resetFields()
+          this.$refs.forgetPwdRef.resetFields()
         },
-        //* 点击登录按钮，响应该事件
-        // TODO 点击的登录按钮，发送ajax请求，验证登录是否成功
-        loginFun() {
-
-        },
-        go(){
-
+        //当输入用户名的输入框中失去焦点，会触发该事件
+       async checkUsername(){
+          //发送axios请求，查找是否存在对应的用户名
+          const res=await  axios.get('http://localhost:8080/finalBrandDemo/user/selectByUsernameForForgetPwd',{
+            params: {username:this.forgetPwdFormData.username}
+          })
+         if(res.data==='fail'){
+           this.$message.error('此用户不存在')
+           //重置表单的验证规则和和输入框中输入的内容
+           this.$refs.forgetPwdRef.resetField()
+         }
         }
       },
     })
